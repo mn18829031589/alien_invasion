@@ -30,7 +30,7 @@ def check_keydown_events(event,ai_settings,screen,ship,bullets):
         ship.moving_left = True  # 一直向左移动飞船
     elif event.key == pygame.K_SPACE:
         fire_bullet(ai_settings,screen,ship,bullets)
-    elif event.key==pygame.K_q:   #快捷退出键q
+    elif event.key==pygame.K_q:   #快捷键退出 q
         sys.exit()
 
 def fire_bullet(ai_settings,screen,ship,bullets):
