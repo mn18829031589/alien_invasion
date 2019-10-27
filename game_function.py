@@ -7,7 +7,7 @@ from alien import Alien
 from time import sleep
 
 #管理事件函数
-def check_events(ai_settings,screen,ship,bullets):
+def check_events(ai_settings,screen,ship,bullets,stats,play_button,aliens):
     """响应按键和鼠标事件"""
 
     # 监视键盘和鼠标事件(用户的执行操作),根据发生的事件类型执行相应的任务
@@ -20,8 +20,27 @@ def check_events(ai_settings,screen,ship,bullets):
         #松键是KEYUP事件
         elif event.type==pygame.KEYUP:
             check_keyup_events(event,ship)
+        #单击鼠标
+        elif event.type==pygame.MOUSEBUTTONDOWN:
+            mouse_x,mouse_y=pygame.mouse.get_pos()
+            check_play_button(stats,play_button,mouse_x,mouse_y,aliens,bullets,ship,screen,ai_settings)
 
+def check_play_button(stats,play_button,mouse_x,mouse_y,aliens,bullets,ship,screen,ai_settings):
+    """在玩家单击Play按钮时开始新游戏"""
 
+    button_clicked=play_button.rect.collidepoint(mouse_x, mouse_y)
+    if button_clicked and not stats.game_active:
+        #隐藏光标
+        pygame.mouse.set_visible(False)
+        #重置游戏统计信息
+        stats.reset_states()
+        stats.game_active=True
+        #清空外星人和子弹列表
+        aliens.empty()
+        bullets.empty()
+        #创建新的一批外星人群,并让飞船居中
+        create_fleet(ai_settings,screen,aliens,ship)
+        ship.center_ship()
 def check_keydown_events(event,ai_settings,screen,ship,bullets):
     """响应按键"""
 
@@ -53,7 +72,7 @@ def check_keyup_events(event,ship):
 
 
 #更新屏幕函数
-def update_screen(ai_settings,screen,ship,aliens,bullets):
+def update_screen(ai_settings,screen,ship,aliens,bullets,stats,play_button):
     """更新屏幕上的图像，并切换到新屏幕"""
 
     screen.fill(ai_settings.bg_color)   # 每次循环都重绘屏幕 (背景色填充屏幕)
@@ -61,6 +80,9 @@ def update_screen(ai_settings,screen,ship,aliens,bullets):
         bullet.draw_bullet()
     ship.blitme()  # 重绘飞船(确保出现在背景前面)
     aliens.draw(screen)  #重绘外星人
+    #如果游戏处于非活动状态,就绘制Play按钮
+    if not stats.game_active:
+        play_button.draw_button()
     pygame.display.flip()  # 让最近绘制的屏幕可见(屏幕的更新)
 
 def update_bullets(ai_settings,screen,ship,aliens,bullets):
@@ -152,8 +174,12 @@ def ship_hit(ai_settings, stats, aliens, bullets, screen, ship):
     if stats.ships_left>0:
         stats.ships_left -= 1
         sleep(0.5)
-    else:
-        stats.game_active=False
+        if stats.ships_left==0:
+           stats.game_active=False
+           pygame.mouse.set_visible(True)
+  #  else:
+   #     stats.game_active=False
+
     # 清空子弹和外星人列表
     aliens.empty()
     bullets.empty()
