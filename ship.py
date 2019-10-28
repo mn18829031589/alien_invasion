@@ -1,10 +1,12 @@
 import pygame
 #创建飞船类，将飞船显示在屏幕上，负责飞船的大部分行为
-class Ship():
+from pygame.sprite import Sprite
+class Ship(Sprite):
 
     def __init__(self,ai_settings,screen): #screen指定了要将飞船绘制到什么地方,ai_settings获取飞船移动速度设置
         """初始化飞船并设置其初始值"""
 
+        super(Ship,self).__init__()
         self.screen=screen
         # 将形参的只存储在一个属性中，以便在update()中能够使用它
         self.ai_settings=ai_settings
